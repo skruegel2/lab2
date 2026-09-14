@@ -6,8 +6,8 @@
 # this way because the build procedure for all apps is basically the same.
 
 
-SRCS=makeprocs.c circular_buffer.c
-EXEC=makeprocs.dlx.obj
+SRCS=spawn_me.c
+EXEC=spawn_me.dlx.obj
 
 include ../Makerules
 

@@ -2,44 +2,60 @@
 #include "usertraps.h"
 #include "misc.h"
 
-//#include "spawn.h"
+#include "circular_buffer.h"
+
 
 void main (int argc, char *argv[])
 {
   int numprocs = 0;               // Used to store number of processes to create
   int i;                          // Loop index variable
-  //missile_code *mc;               // Used to get address of shared memory page
+  CircularBuffer *cb;            // Used to get address of shared memory page
   uint32 h_mem;                   // Used to hold handle to shared memory page
   sem_t s_procs_completed;        // Semaphore used to wait until all spawned processes have completed
   char h_mem_str[10];             // Used as command-line argument to pass mem_handle to new processes
   char s_procs_completed_str[10]; // Used as command-line argument to pass page_mapped handle to new processes
-
+  char item;
+  
   if (argc != 2) {
     Printf("Usage: "); Printf(argv[0]); Printf(" <number of processes to create>\n");
     Exit();
   }
 
-  // // Convert string from ascii command line argument to integer number
-  // numprocs = dstrtol(argv[1], NULL, 10); // the "10" means base 10
-  // Printf("Creating %d processes\n", numprocs);
+  // Convert string from ascii command line argument to integer number
+  numprocs = dstrtol(argv[1], NULL, 10); // the "10" means base 10
+  Printf("Creating %d processes\n", numprocs);
 
   // Allocate space for a shared memory page, which is exactly 64KB
   // Note that it doesn't matter how much memory we actually need: we 
   // always get 64KB
-  // if ((h_mem = shmget()) == 0) {
-  //   Printf("ERROR: could not allocate shared memory page in "); Printf(argv[0]); Printf(", exiting...\n");
-  //   Exit();
-  // }
+  if ((h_mem = shmget()) == 0) {
+    Printf("ERROR: could not allocate shared memory page in "); Printf(argv[0]);
+    Printf(", exiting...\n");
+    Exit();
+  }
 
   // Map shared memory page into this process's memory space
-  // if ((mc = (missile_code *)shmat(h_mem)) == NULL) {
-  //   Printf("Could not map the shared page to virtual address in "); Printf(argv[0]); Printf(", exiting..\n");
-  //   Exit();
-  // }
+  if ((cb = (CircularBuffer *)shmat(h_mem)) == NULL) {
+    Printf("Could not map the shared page to virtual address in "); Printf(argv[0]);
+    Printf(", exiting..\n");
+    Exit();
+  }
+  // Initialize the circular buffer
+  cb_init(cb);
 
   // Put some values in the shared memory, to be read by other processes
-  // mc->numprocs = numprocs;
-  // mc->really_important_char = 'A';
+  if (!cb_push(cb, 'A')) {
+    Printf("Buffer is full, cannot push A\n");
+  }
+  
+  
+
+
+  if (!cb_pop(cb, &item)) { 
+    Printf("Buffer is empty, cannot pop\n");
+  } else {
+    Printf("Popped item: %c\n", item);
+  }
 
   // Create semaphore to not exit this process until all other processes 
   // have signalled that they are complete.  To do this, we will initialize
