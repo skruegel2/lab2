@@ -6,3 +6,6 @@
 
 # List files
 *.lst
+
+# Binaries
+bin/
