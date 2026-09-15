@@ -1,7 +1,15 @@
 #include "circular_buffer.h"
+#include "lab2-api.h"
+#include "usertraps.h"
+#include "misc.h"
 
 // Init the buffer
 void cb_init(CircularBuffer *cb) {
+    cb->lock = lock_create();
+    if (cb->lock == SYNC_FAIL) {
+        // Printf("Failed to create lock for circular buffer\n");
+        // Exit();
+    }
     cb->head = 0;
     cb->tail = 0;
     cb->count = 0;

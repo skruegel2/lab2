@@ -6,10 +6,17 @@
 # this way because the build procedure for all apps is basically the same.
 
 
-SRCS=makeprocs.c circular_buffer.c
+SRCS=makeprocs.c
 EXEC=makeprocs.dlx.obj
 
 include ../Makerules
 
 include $(APPROOT)/Makerules
+
+WORKOBJS += work/circular_buffer.o
+
+$(OUTDLX): work/circular_buffer.o
+
+work/circular_buffer.o: ../common/circular_buffer.c ../include/circular_buffer.h ../../../include/lab2-api.h
+	$(CC) $(CFLAGS) $(INCDIR) -c -o $@ $<
 
