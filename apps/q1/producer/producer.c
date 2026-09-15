@@ -24,7 +24,9 @@ void main (int argc, char *argv[])
 
   // Map shared memory page into this process's memory space
   if ((cb = (CircularBuffer *)shmat(h_mem)) == NULL) {
-    Printf("Could not map the virtual address to the memory in "); Printf(argv[0]); Printf(", exiting...\n");
+    Printf("Could not map the virtual address to the memory in ");
+    Printf(argv[0]);
+    Printf(", exiting...\n");
     Exit();
   }
  
@@ -39,11 +41,11 @@ void main (int argc, char *argv[])
       Printf("Producer: could not acquire buffer lock\n");
       Exit();
     }
-    Printf("producer: PID %d is has the lock.\n", Getpid());
+    Printf("producer: PID %d has the lock.\n", Getpid());
 
     if (!cb_is_full(cb)) {
       cb_push(cb, source[idx]);
-      Printf("producer: Pushed item: %c\n", source[idx]);
+      Printf("Producer %d Pushed item: %c\n", Getpid(), source[idx]);
     } else {
       Printf("Buffer is full, cannot push %c\n", source[idx]);
     }
