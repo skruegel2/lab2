@@ -7,7 +7,7 @@
 void main (int argc, char *argv[])
 {
   uint32 h_mem;            // Handle to the shared memory page
-  sem_t s_procs_completed; // Semaphore to signal the original process that we're done
+  sem_t s_cons_completed; // Semaphore to signal the original process that we're done
 
   if (argc != 3) { 
     Printf("Consumer: Invalid number of arguments\n");
@@ -18,7 +18,7 @@ void main (int argc, char *argv[])
 
   // Convert the command-line strings into integers for use as handles
   h_mem = dstrtol(argv[1], NULL, 10); // The "10" means base 10
-  s_procs_completed = dstrtol(argv[2], NULL, 10);
+  s_cons_completed = dstrtol(argv[2], NULL, 10);
 
   // Map shared memory page into this process's memory space
   // if ((mc = (missile_code *)shmat(h_mem)) == NULL) {
@@ -32,8 +32,8 @@ void main (int argc, char *argv[])
 
   // Signal the semaphore to tell the original process that we're done
   Printf("consumer: PID %d is complete.\n", Getpid());
-  if(sem_signal(s_procs_completed) != SYNC_SUCCESS) {
-    Printf("Bad semaphore s_procs_completed (%d) in ", s_procs_completed);
+  if(sem_signal(s_cons_completed) != SYNC_SUCCESS) {
+    Printf("Bad semaphore s_cons_completed (%d) in ", s_cons_completed);
     Printf(argv[0]); Printf(", exiting...\n");
     Exit();
   }
