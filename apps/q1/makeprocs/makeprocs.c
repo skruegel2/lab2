@@ -90,15 +90,9 @@ void main (int argc, char *argv[])
   // knows how many arguments you are sending.
   for(i=0; i<numprocs; i++) {
     process_create(PRODUCER_TO_RUN, h_mem_str, s_prods_completed_str, NULL);
-    Printf("Process %d created\n", i);
-  }
-
-  // Now we can create the consumer processes.  Note that you MUST end your call to
-  // process_create with a NULL argument so that the operating system
-  // knows how many arguments you are sending.
-  for(i=0; i<numprocs; i++) {
+    Printf("Process %d created\n", i*2);
     process_create(CONSUMER_TO_RUN, h_mem_str, s_cons_completed_str, NULL);
-    Printf("Process %d created\n", i);
+    Printf("Process %d created\n", i*2+1);
   }
 
   // And finally, wait until all spawned processes have finished.

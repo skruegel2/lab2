@@ -34,13 +34,12 @@ void main (int argc, char *argv[])
   }
  
   // Now print a message to show that everything worked
-  Printf("consumer: This is one of the consumer instances you created.\n");
   Printf("consumer: My PID is %d\n", Getpid());
 
 
   // Remove all source chars from buffer
-  for (idx = 0; idx < sizeof(source) - 1; idx++) {
-    while (cb_is_empty(cb));
+  idx = 0;
+  while (idx < sizeof(source) - 1) {
     if (lock_acquire(cb->lock) != SYNC_SUCCESS) {
       Printf("consumer: could not acquire buffer lock\n");
       Exit();
@@ -48,25 +47,28 @@ void main (int argc, char *argv[])
     Printf("consumer: PID %d has the lock.\n", Getpid());
 
     if (!cb_is_empty(cb)) {
-      cb_pop(cb, &item);
+      cb_peek(cb, &item);
       // Initial case: if prev_item is '\0', first item must be '0'
       if (prev_item == '\0' && item != '0') {
-        Printf("consumer: Error! Expected item 0 but got %c\n", item);
-        cb_push(cb, item); // Push the item back to the buffer
+        Printf("consumer %d Error! Expected item 0 but got %c\n", Getpid(), item);
       }
-      if (prev_item != '\0' && item != prev_item + 1) {
-        Printf("consumer: Error! Expected item %c but got %c\n", prev_item + 1, item);
-        cb_push(cb, item); // Push the item back to the buffer
+      // Out of order case
+      else if (prev_item != '\0' && item != prev_item + 1) {
+        Printf("consumer %d Error! Expected item %c but got %c\n", Getpid(),  prev_item + 1, item);
       }
+      // In order case
       else {
+        cb_pop(cb, &item);
         Printf("Consumer %d removed %c\n", Getpid(), item);
         prev_item = item;
+        idx++;
       }
     } else {
       Printf("Buffer is empty, cannot pop\n");
     }
     lock_release(cb->lock);
-  }  
+  }
+ 
   // Signal the semaphore to tell the original process that we're done
   Printf("consumer: PID %d is complete.\n", Getpid());
   if(sem_signal(s_cons_completed) != SYNC_SUCCESS) {

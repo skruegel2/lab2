@@ -2,6 +2,3 @@ work/makeprocs.o: makeprocs.c ../../../include/lab2-api.h \
  ../../../include/usertraps.h ../../../include/misc.h \
  ../include/circular_buffer.h ../include/consumer.h \
  ../include/producer.h
-work/circular_buffer.o: ../common/circular_buffer.c \
- ../include/circular_buffer.h ../../../include/lab2-api.h \
- ../../../include/usertraps.h ../../../include/misc.h

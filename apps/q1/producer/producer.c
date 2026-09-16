@@ -31,12 +31,11 @@ void main (int argc, char *argv[])
   }
  
   // Now print a message to show that everything worked
-  Printf("producer: This is one of the producer instances you created.\n");
   Printf("producer: My PID is %d\n", Getpid());
 
   // Add all source chars to buffer
-  for (idx = 0; idx < sizeof(source) - 1; idx++) {
-    while (cb_is_full(cb));
+  idx = 0;
+  while (idx < sizeof(source) - 1) {
     if (lock_acquire(cb->lock) != SYNC_SUCCESS) {
       Printf("Producer: could not acquire buffer lock\n");
       Exit();
@@ -46,11 +45,13 @@ void main (int argc, char *argv[])
     if (!cb_is_full(cb)) {
       cb_push(cb, source[idx]);
       Printf("Producer %d Pushed item: %c\n", Getpid(), source[idx]);
+      idx++;
     } else {
       Printf("Buffer is full, cannot push %c\n", source[idx]);
     }
     lock_release(cb->lock);
   }
+
   // Signal the semaphore to tell the original process that we're done
   Printf("producer: PID %d is complete.\n", Getpid());
   if(sem_signal(s_prods_completed) != SYNC_SUCCESS) {

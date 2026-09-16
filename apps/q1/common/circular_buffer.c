@@ -44,3 +44,11 @@ int cb_pop(CircularBuffer *cb, char *item) {
     cb->count--;
     return 1; // Success
 }
+
+int cb_peek(CircularBuffer *cb, char *item) {
+    if (cb_is_empty(cb)) {
+        return 0;
+    }
+    *item = cb->buffer[cb->tail];
+    return 1;
+}
