@@ -20,13 +20,15 @@ void main (int argc, char *argv[])
   char item;
 
   if (argc != 2) {
-    Printf("Usage: "); Printf(argv[0]); Printf(" <number of processes to create>\n");
+    Printf("Usage: "); 
+    Printf(argv[0]); 
+    Printf(" <number of processes to create>\n");
     Exit();
   }
 
   // Convert string from ascii command line argument to integer number
   numprocs = dstrtol(argv[1], NULL, 10); // the "10" means base 10
-  Printf("Creating %d processes\n", numprocs);
+  //Printf("Creating %d processes\n", numprocs);
 
   // Allocate space for a shared memory page, which is exactly 64KB
   // Note that it doesn't matter how much memory we actually need: we 
@@ -45,17 +47,6 @@ void main (int argc, char *argv[])
   }
   // Initialize the circular buffer
   cb_init(cb);
-
-  // Put some values in the shared memory, to be read by other processes
-  // if (!cb_push(cb, 'A')) {
-  //   Printf("Buffer is full, cannot push A\n");
-  // }
-  
-  // if (!cb_pop(cb, &item)) { 
-  //   Printf("Buffer is empty, cannot pop\n");
-  // } else {
-  //   Printf("Popped item: %c\n", item);
-  // }
 
   // Create semaphore to not exit this process until all consumers
   // have signalled that they are complete.  To do this, we will initialize
@@ -90,9 +81,9 @@ void main (int argc, char *argv[])
   // knows how many arguments you are sending.
   for(i=0; i<numprocs; i++) {
     process_create(PRODUCER_TO_RUN, h_mem_str, s_prods_completed_str, NULL);
-    Printf("Process %d created\n", i*2);
+    //Printf("Process %d created\n", i*2);
     process_create(CONSUMER_TO_RUN, h_mem_str, s_cons_completed_str, NULL);
-    Printf("Process %d created\n", i*2+1);
+    //Printf("Process %d created\n", i*2+1);
   }
 
   // And finally, wait until all spawned processes have finished.

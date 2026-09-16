@@ -34,7 +34,7 @@ void main (int argc, char *argv[])
   }
  
   // Now print a message to show that everything worked
-  Printf("consumer: My PID is %d\n", Getpid());
+  //Printf("consumer: My PID is %d\n", Getpid());
 
 
   // Remove all source chars from buffer
@@ -44,17 +44,17 @@ void main (int argc, char *argv[])
       Printf("consumer: could not acquire buffer lock\n");
       Exit();
     }
-    Printf("consumer: PID %d has the lock.\n", Getpid());
+    //Printf("consumer: PID %d has the lock.\n", Getpid());
 
     if (!cb_is_empty(cb)) {
       cb_peek(cb, &item);
       // Initial case: if prev_item is '\0', first item must be '0'
       if (prev_item == '\0' && item != '0') {
-        Printf("consumer %d Error! Expected item 0 but got %c\n", Getpid(), item);
+      //  Printf("consumer %d Error! Expected item 0 but got %c\n", Getpid(), item);
       }
       // Out of order case
       else if (prev_item != '\0' && item != prev_item + 1) {
-        Printf("consumer %d Error! Expected item %c but got %c\n", Getpid(),  prev_item + 1, item);
+      //  Printf("consumer %d Error! Expected item %c but got %c\n", Getpid(),  prev_item + 1, item);
       }
       // In order case
       else {
@@ -64,13 +64,13 @@ void main (int argc, char *argv[])
         idx++;
       }
     } else {
-      Printf("Buffer is empty, cannot pop\n");
+      //Printf("Buffer is empty, cannot pop\n");
     }
     lock_release(cb->lock);
   }
  
   // Signal the semaphore to tell the original process that we're done
-  Printf("consumer: PID %d is complete.\n", Getpid());
+  //Printf("consumer: PID %d is complete.\n", Getpid());
   if(sem_signal(s_cons_completed) != SYNC_SUCCESS) {
     Printf("Bad semaphore s_cons_completed (%d) in ", s_cons_completed);
     Printf(argv[0]); Printf(", exiting...\n");
