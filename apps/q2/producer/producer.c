@@ -36,20 +36,18 @@ void main (int argc, char *argv[])
   // Add all source chars to buffer
   idx = 0;
   while (idx < sizeof(source) - 1) {
+    sem_wait(cb->s_empty_slots);
     if (lock_acquire(cb->lock) != SYNC_SUCCESS) {
       Printf("Producer: could not acquire buffer lock\n");
       Exit();
     }
     Printf("producer: PID %d has the lock.\n", Getpid());
 
-    if (!cb_is_full(cb)) {
-      cb_push(cb, source[idx]);
-      Printf("Producer %d Pushed item: %c\n", Getpid(), source[idx]);
-      idx++;
-    } else {
-      Printf("Buffer is full, cannot push %c\n", source[idx]);
-    }
+    cb_push(cb, source[idx]);
+    Printf("Producer %d inserted %c\n", Getpid(), source[idx]);
+    idx++;
     lock_release(cb->lock);
+    sem_signal(cb->s_full_slots);
   }
 
   // Signal the semaphore to tell the original process that we're done

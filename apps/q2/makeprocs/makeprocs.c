@@ -46,17 +46,6 @@ void main (int argc, char *argv[])
   // Initialize the circular buffer
   cb_init(cb);
 
-  // Put some values in the shared memory, to be read by other processes
-  // if (!cb_push(cb, 'A')) {
-  //   Printf("Buffer is full, cannot push A\n");
-  // }
-  
-  // if (!cb_pop(cb, &item)) { 
-  //   Printf("Buffer is empty, cannot pop\n");
-  // } else {
-  //   Printf("Popped item: %c\n", item);
-  // }
-
   // Create semaphore to not exit this process until all consumers
   // have signalled that they are complete.  To do this, we will initialize
   // the semaphore to (-1) * (number of signals), where "number of signals"

@@ -7,8 +7,18 @@
 void cb_init(CircularBuffer *cb) {
     cb->lock = lock_create();
     if (cb->lock == SYNC_FAIL) {
-        // Printf("Failed to create lock for circular buffer\n");
-        // Exit();
+        Printf("Failed to create lock for circular buffer\n");
+        Exit();
+    }
+    cb->s_empty_slots = sem_create(BUFFER_CAPACITY - 1);
+    if (cb->s_empty_slots == SYNC_FAIL) {
+        Printf("Failed to create empty slots semaphore for circular buffer\n");
+        Exit();
+    }
+    cb->s_full_slots = sem_create(0);
+    if (cb->s_full_slots == SYNC_FAIL) {
+        Printf("Failed to create full slots semaphore for circular buffer\n");
+        Exit();
     }
     cb->head = 0;
     cb->tail = 0;

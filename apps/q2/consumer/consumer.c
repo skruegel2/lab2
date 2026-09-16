@@ -36,37 +36,38 @@ void main (int argc, char *argv[])
   // Now print a message to show that everything worked
   Printf("consumer: My PID is %d\n", Getpid());
 
-
   // Remove all source chars from buffer
   idx = 0;
   while (idx < sizeof(source) - 1) {
+    sem_wait(cb->s_full_slots);
     if (lock_acquire(cb->lock) != SYNC_SUCCESS) {
       Printf("consumer: could not acquire buffer lock\n");
       Exit();
     }
     Printf("consumer: PID %d has the lock.\n", Getpid());
 
-    if (!cb_is_empty(cb)) {
-      cb_peek(cb, &item);
-      // Initial case: if prev_item is '\0', first item must be '0'
-      if (prev_item == '\0' && item != '0') {
-        Printf("consumer %d Error! Expected item 0 but got %c\n", Getpid(), item);
-      }
-      // Out of order case
-      else if (prev_item != '\0' && item != prev_item + 1) {
-        Printf("consumer %d Error! Expected item %c but got %c\n", Getpid(),  prev_item + 1, item);
-      }
-      // In order case
-      else {
-        cb_pop(cb, &item);
-        Printf("Consumer %d removed %c\n", Getpid(), item);
-        prev_item = item;
-        idx++;
-      }
-    } else {
-      Printf("Buffer is empty, cannot pop\n");
+    cb_peek(cb, &item);
+    // Initial case: if prev_item is '\0', first item must be '0'
+    if (prev_item == '\0' && item != '0') {
+      Printf("consumer %d Error! Expected item 0 but got %c\n", Getpid(), item);
+      lock_release(cb->lock);
+      sem_signal(cb->s_full_slots);
     }
-    lock_release(cb->lock);
+    // Out of order case
+    else if (prev_item != '\0' && item != prev_item + 1) {
+      Printf("consumer %d Error! Expected item %c but got %c\n", Getpid(),  prev_item + 1, item);
+      lock_release(cb->lock);
+      sem_signal(cb->s_full_slots);
+    }
+    // In order case
+    else {
+      cb_pop(cb, &item);
+      Printf("Consumer %d removed %c\n", Getpid(), item);
+      prev_item = item;
+      idx++;
+      lock_release(cb->lock);
+      sem_signal(cb->s_empty_slots);
+    }
   }
  
   // Signal the semaphore to tell the original process that we're done
