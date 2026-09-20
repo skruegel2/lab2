@@ -42,13 +42,14 @@ void main (int argc, char *argv[])
     }
     //Printf("producer: PID %d has the lock.\n", Getpid());
 
-    if (!cb_is_full(cb)) {
-      cb_push(cb, source[idx]);
-      Printf("Producer %d inserted %c\n", Getpid(), source[idx]);
-      idx++;
-    } else {
-      //Printf("Buffer is full, cannot push %c\n", source[idx]);
+    while (cb_is_full(cb)){
+      cond_wait(cb->not_full);
     }
+    cb_push(cb, source[idx]);
+    Printf("Producer %d inserted %c\n", Getpid(), source[idx]);
+    idx++;
+
+    cond_signal(cb->not_empty);
     lock_release(cb->lock);
   }
 

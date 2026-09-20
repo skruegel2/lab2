@@ -13,6 +13,8 @@ void cb_init(CircularBuffer *cb) {
     cb->head = 0;
     cb->tail = 0;
     cb->count = 0;
+    cb->not_full = cond_create(cb->lock);
+    cb->not_empty = cond_create(cb->lock);
 }
 
 // Check if the buffer is full

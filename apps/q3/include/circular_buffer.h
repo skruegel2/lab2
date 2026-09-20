@@ -1,7 +1,7 @@
 #ifndef CIRCULAR_BUFFER_H
 #define CIRCULAR_BUFFER_H
 #include "lab2-api.h"
-#define BUFFER_CAPACITY 10
+#define BUFFER_CAPACITY 32
 
 typedef struct {
     lock_t lock;
@@ -9,6 +9,8 @@ typedef struct {
     int head;
     int tail;
     int count;
+    cond_t not_full;  // Condition variable for buffer not full
+    cond_t not_empty; // Condition variable for buffer not empty
 } CircularBuffer;
 
 void cb_init(CircularBuffer *cb);
