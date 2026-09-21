@@ -5,7 +5,10 @@
 
 typedef struct {
     lock_t lock;
-    cond_t cond;
+    cond_t cond_full;
+    cond_t cond_empty;
+    lock_t lock_full;
+    lock_t lock_empty;
     char buffer[BUFFER_CAPACITY];
     int head;
     int tail;
