@@ -29,7 +29,9 @@ void main (int argc, char *argv[])
     Printf(", exiting...\n");
     Exit();
   }
- 
+  lock_t test_lock = lock_create();
+  cond_t test_cond = cond_create(cb->lock);
+
   // Now print a message to show that everything worked
   //Printf("producer: My PID is %d\n", Getpid());
 

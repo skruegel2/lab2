@@ -5,6 +5,7 @@
 
 typedef struct {
     lock_t lock;
+    cond_t cond;
     char buffer[BUFFER_CAPACITY];
     int head;
     int tail;

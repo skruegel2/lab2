@@ -13,6 +13,7 @@
 
 static Sem sems[MAX_SEMS]; 	// All semaphores in the system
 static Lock locks[MAX_LOCKS];   // All locks in the system
+static Cond conds[MAX_CONDS];   // All condition variables in the system
 
 extern struct PCB *currentPCB; 
 //----------------------------------------------------------------------
@@ -28,9 +29,11 @@ int SynchModuleInit() {
   }
   for(i=0; i<MAX_LOCKS; i++) {
     // Your stuff for initializing locks goes here
+    locks[i].inuse = 0;
   }
   for(i=0; i<MAX_CONDS; i++) {
     // Your stuff for initializing Condition variables goes here
+    conds[i].inuse = 0;
   }
   dbprintf ('p', "SynchModuleInit: Leaving SynchModuleInit\n");
   return SYNC_SUCCESS;
@@ -356,6 +359,24 @@ int LockTransfer(Lock *k, PCB *pcb) {
   return SYNC_SUCCESS;
 }
 
+//---------------------------------------------------------------------
+//
+//	CondInit
+//
+//	Initialize a condition variable.  This just means
+//	initting the process queue.
+//
+//----------------------------------------------------------------------
+
+int CondInit (Cond* cond) {
+  if (!cond) return SYNC_FAIL;
+  if (AQueueInit (&cond->waiting) != QUEUE_SUCCESS) {
+    printf("FATAL ERROR: could not initialize condition variable waiting queue in CondInit!\n");
+    exitsim();
+  }
+  return SYNC_SUCCESS;
+}
+
 //--------------------------------------------------------------------------
 //	CondCreate
 //
@@ -372,7 +393,35 @@ int LockTransfer(Lock *k, PCB *pcb) {
 //--------------------------------------------------------------------------
 cond_t CondCreate(lock_t lock) {
   // Your code goes here
-  return SYNC_FAIL;
+  cond_t cond;
+  uint32 intrval;
+
+  // grabbing a condition variable should be an atomic operation
+  intrval = DisableIntrs();
+  for(cond=0; cond<MAX_CONDS; cond++) {
+    if(conds[cond].inuse==0) {
+      conds[cond].inuse = 1;
+      break;
+    }
+  }
+  RestoreIntrs(intrval);
+  if(cond==MAX_CONDS)
+  {
+    printf("All condition var slots in use\n");
+    return SYNC_FAIL;
+  }
+
+  if (CondInit(&conds[cond]) != SYNC_SUCCESS)
+  {
+    printf("Failed to create condition var.\n");
+    return SYNC_FAIL;
+  }
+  else
+  {
+    printf("Created condition var.\n");
+  }
+  conds[cond].lock = lock;
+  return cond;  
 }
 
 //---------------------------------------------------------------------------

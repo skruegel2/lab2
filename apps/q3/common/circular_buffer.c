@@ -7,8 +7,13 @@
 void cb_init(CircularBuffer *cb) {
     cb->lock = lock_create();
     if (cb->lock == SYNC_FAIL) {
-        // Printf("Failed to create lock for circular buffer\n");
-        // Exit();
+        Printf("Failed to create lock for circular buffer\n");
+        Exit();
+    }
+    cb->cond = cond_create(cb->lock);
+    if (cb->cond == SYNC_FAIL) {
+        Printf("Failed to create condition variable for circular buffer\n");
+        Exit();
     }
     cb->head = 0;
     cb->tail = 0;
