@@ -10,23 +10,13 @@ void cb_init(CircularBuffer *cb) {
         Printf("Failed to create lock for circular buffer\n");
         Exit();
     }
-    cb->lock_full = lock_create();
-    if (cb->lock_full == SYNC_FAIL) {
-        Printf("Failed to create lock_full for circular buffer\n");
+    cb->cond_not_full = cond_create(cb->lock);
+    if (cb->cond_not_full== SYNC_FAIL) {
+        Printf("Failed to create cond_not_full for circular buffer\n");
         Exit();
     }
-    cb->lock_empty = lock_create();
-    if (cb->lock_empty == SYNC_FAIL) {
-        Printf("Failed to create lock_empty for circular buffer\n");
-        Exit();
-    }
-    cb->cond_full = cond_create(cb->lock_full);
-    if (cb->cond_full== SYNC_FAIL) {
-        Printf("Failed to create cond_full for circular buffer\n");
-        Exit();
-    }
-    cb->cond_empty = cond_create(cb->lock_empty);
-    if (cb->cond_empty== SYNC_FAIL) {
+    cb->cond_not_empty = cond_create(cb->lock);
+    if (cb->cond_not_empty== SYNC_FAIL) {
         Printf("Failed to create cond_empty for circular buffer\n");
         Exit();
     }

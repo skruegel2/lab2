@@ -3,6 +3,7 @@
 #include "misc.h"
 #include "circular_buffer.h"
 #include "producer.h"
+#include "synch.h"
 
 void main (int argc, char *argv[])
 {
@@ -42,15 +43,19 @@ void main (int argc, char *argv[])
       Printf("Producer: could not acquire buffer lock\n");
       Exit();
     }
+    
     //Printf("producer: PID %d has the lock.\n", Getpid());
 
-    if (!cb_is_full(cb)) {
-      cb_push(cb, source[idx]);
-      Printf("Producer %d inserted %c\n", Getpid(), source[idx]);
-      idx++;
+    while (cb_is_full(cb)) {
+      cond_wait(cb->cond_not_full);
+    }
     } else {
       //Printf("Buffer is full, cannot push %c\n", source[idx]);
     }
+    cb_push(cb, source[idx]);
+    Printf("Producer %d inserted %c\n", Getpid(), source[idx]);
+    idx++;
+    cond_signal(cb->cond_not_empty);
     lock_release(cb->lock);
   }
 

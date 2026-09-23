@@ -4,11 +4,10 @@
 #define BUFFER_CAPACITY 10
 
 typedef struct {
+    sem_t procs_completed;
     lock_t lock;
-    cond_t cond_full;
-    cond_t cond_empty;
-    lock_t lock_full;
-    lock_t lock_empty;
+    cond_t cond_not_full;
+    cond_t cond_not_empty;
     char buffer[BUFFER_CAPACITY];
     int head;
     int tail;

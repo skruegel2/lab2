@@ -404,7 +404,9 @@ cond_t CondCreate(lock_t lock) {
       break;
     }
   }
+
   RestoreIntrs(intrval);
+
   if(cond==MAX_CONDS)
   {
     printf("All condition var slots in use\n");
@@ -447,6 +449,49 @@ cond_t CondCreate(lock_t lock) {
 //---------------------------------------------------------------------------
 int CondHandleWait(cond_t c) {
   // Your code goes here
+  Link	*link;
+  uint32 intrval;
+  PCB *current_pcb = currentPCB;
+  Lock l;
+
+  if (c < 0 || c >= MAX_CONDS || !conds[c].inuse) {
+      return SYNC_FAIL;
+  }
+
+  // Disable interrupts to protect synchronization structures
+  intrval = DisableIntrs();
+  l = locks[conds[c].lock];   // For syntax simplicity
+  if (l.pid != GetCurrentPid()) {
+    return SYNC_FAIL;
+  }
+  if ((link = AQueueAllocLink ((void *)currentPCB)) == NULL) {
+    printf("FATAL ERROR: could not allocate link for semaphore queue in SemWait!\n");
+    exitsim();
+  } 
+  // Insert current process into the CV's wait queue
+  if (AQueueInsertLast(&(conds[c].waiting), link) != 0) {
+      RestoreIntrs(intrval);
+      return SYNC_FAIL;
+  }
+
+  // Release the lock before sleeping
+  if (LockRelease(&l) != SYNC_SUCCESS) {
+      QueueRemove(current_pcb);
+      RestoreIntrs(intrval);
+      return SYNC_FAIL;
+  }
+
+  ProcessSleep();
+  ProcessSchedule();
+
+  // Re-enable interrupts after context-switch returns
+  RestoreIntrs(intrval);
+
+  // // Re-acquire the lock before returning to critical section
+  // if (LockHandleAcquire(conds[c].lock) != SYNC_SUCCESS) {
+  //     return SYNC_FAIL;
+  // }
+
   return SYNC_SUCCESS;
 }
 
@@ -468,5 +513,33 @@ int CondHandleWait(cond_t c) {
 //---------------------------------------------------------------------------
 int CondHandleSignal(cond_t c) {
   // Your code goes here
+  uint32 intrval;
+  PCB* waiter = NULL;
+  Link* link;
+
+  if (c < 0 || c >= MAX_CONDS || !conds[c].inuse) {
+      return SYNC_FAIL;
+  }
+  intrval = DisableIntrs();
+
+  if (!AQueueEmpty(&(conds[c].waiting))) { // there is a process to wake up
+    link = AQueueFirst(&(conds[c].waiting));
+    waiter = (PCB *)AQueueObject(link);
+    LockTransfer(&locks[conds[c].lock], waiter);
+    if ((link = AQueueAllocLink ((void *)currentPCB)) == NULL) {
+      printf("FATAL ERROR: could not allocate link for queue in CondSignal!\n");
+      exitsim();
+    } 
+    // Insert current process into the CV's wait queue
+    if (AQueueInsertLast(&(conds[c].waiting), link) != 0) {
+        RestoreIntrs(intrval);
+        return SYNC_FAIL;
+    }
+    ProcessSleep();
+    RestoreIntrs(intrval);
+    LockAcquire(&locks[conds[c].lock]);
+    return SYNC_SUCCESS;
+  }
+  RestoreIntrs(intrval);
   return SYNC_SUCCESS;
 }

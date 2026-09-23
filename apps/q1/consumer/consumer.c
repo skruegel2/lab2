@@ -46,25 +46,25 @@ void main (int argc, char *argv[])
     }
     //Printf("consumer: PID %d has the lock.\n", Getpid());
 
-    if (!cb_is_empty(cb)) {
-      cb_peek(cb, &item);
-      // Initial case: if prev_item is '\0', first item must be '0'
-      if (prev_item == '\0' && item != '0') {
-      //  Printf("consumer %d Error! Expected item 0 but got %c\n", Getpid(), item);
-      }
-      // Out of order case
-      else if (prev_item != '\0' && item != prev_item + 1) {
-      //  Printf("consumer %d Error! Expected item %c but got %c\n", Getpid(),  prev_item + 1, item);
-      }
-      // In order case
-      else {
-        cb_pop(cb, &item);
-        Printf("Consumer %d removed %c\n", Getpid(), item);
-        prev_item = item;
-        idx++;
-      }
-    } else {
-      //Printf("Buffer is empty, cannot pop\n");
+    if  (cb_is_empty(cb)) {
+      cond_wait(cb->not_empty);
+    }
+    cb_peek(cb, &item);
+    // Initial case: if prev_item is '\0', first item must be '0'
+    if (prev_item == '\0' && item != '0') {
+    //  Printf("consumer %d Error! Expected item 0 but got %c\n", Getpid(), item);
+    }
+    // Out of order case
+    else if (prev_item != '\0' && item != prev_item + 1) {
+    //  Printf("consumer %d Error! Expected item %c but got %c\n", Getpid(),  prev_item + 1, item);
+    }
+    // In order case
+    else {
+      cb_pop(cb, &item);
+      Printf("Consumer %d removed %c\n", Getpid(), item);
+      prev_item = item;
+      idx++;
+      cb_signal(cb->not_full);
     }
     lock_release(cb->lock);
   }
