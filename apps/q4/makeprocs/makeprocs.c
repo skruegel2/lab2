@@ -3,30 +3,28 @@
 #include "misc.h"
 
 #include "circular_buffer.h"
-#include "consumer.h"
-#include "producer.h"
+
+#include "n3_injection.h"
 
 void main (int argc, char *argv[])
 {
-  int numprocs = 0;               // Used to store number of processes to create
-  int i;                          // Loop index variable
-  CircularBuffer *cb;            // Used to get address of shared memory page
+  int n3_mol = 0;                 // Used to store number of initial n3 molecules
+  CircularBuffer *cb;             // Used to get address of shared memory page
   uint32 h_mem;                   // Used to hold handle to shared memory page
-  sem_t s_cons_completed;        // Semaphore used to wait until all consumers have completed
-  sem_t s_prods_completed;        // Semaphore used to wait until all producers have completed
+  sem_t sem_n3_inj;               // Semaphore used to wait until n3 injection complete
   char h_mem_str[10];             // Used as command-line argument to pass mem_handle to new processes
-  char s_prods_completed_str[10]; // Used as command-line argument to pass page_mapped handle to new processes
-  char s_cons_completed_str[10]; // Used as command-line argument to pass page_mapped handle to new processes
-  char item;
+  char n3_mol_str[10];            // Used as command-line argument to pass page_mapped handle to new processes
 
   if (argc != 2) {
     Printf("Usage: "); Printf(argv[0]); Printf(" <number of processes to create>\n");
     Exit();
   }
+  // Now print a message to show that everything worked
+  Printf("makeprocs My PID is %d\n", Getpid());
 
   // Convert string from ascii command line argument to integer number
-  numprocs = dstrtol(argv[1], NULL, 10); // the "10" means base 10
-  Printf("Creating %d processes\n", numprocs);
+  n3_mol = dstrtol(argv[1], NULL, 10); // the "10" means base 10
+  Printf("Creating %d N3 molecules\n", n3_mol);
 
   // Allocate space for a shared memory page, which is exactly 64KB
   // Note that it doesn't matter how much memory we actually need: we 
@@ -52,10 +50,13 @@ void main (int argc, char *argv[])
   // should be equal to the number of processes we're spawning - 1.  Once 
   // each of the processes has signaled, the semaphore should be back to
   // zero and the final sem_wait below will return.
-  if ((s_cons_completed = sem_create(-(numprocs-1))) == SYNC_FAIL) {
-    Printf("Bad sem_create in "); Printf(argv[0]); Printf("\n");
-    Exit();
-  }
+
+  // Create the n3 injection sem with a count of -1.  Once the n3 inj process
+  // complete, the main process will not wait for it anymore
+  // if ((sem_n3_inj = sem_create(-1)) == SYNC_FAIL) {
+  //   Printf("Bad sem_create in "); Printf(argv[0]); Printf("\n");
+  //   Exit();
+  // }
 
   // Create semaphore to not exit this process until all producers
   // have signalled that they are complete.  To do this, we will initialize
@@ -63,35 +64,38 @@ void main (int argc, char *argv[])
   // should be equal to the number of processes we're spawning - 1.  Once 
   // each of the processes has signaled, the semaphore should be back to
   // zero and the final sem_wait below will return.
-  if ((s_prods_completed = sem_create(-(numprocs-1))) == SYNC_FAIL) {
-    Printf("Bad sem_create in "); Printf(argv[0]); Printf("\n");
-    Exit();
-  }  
+  // if ((s_prods_completed = sem_create(-(numprocs-1))) == SYNC_FAIL) {
+  //   Printf("Bad sem_create in "); Printf(argv[0]); Printf("\n");
+  //   Exit();
+  // }  
   // Setup the command-line arguments for the new process.  We're going to
   // pass the handles to the shared memory page and the semaphore as strings
   // on the command line, so we must first convert them from ints to strings.
   ditoa(h_mem, h_mem_str);
-  ditoa(s_prods_completed, s_prods_completed_str);
-  ditoa(s_cons_completed, s_cons_completed_str);
+  ditoa(n3_mol, n3_mol_str);
+//  ditoa(s_cons_completed, s_cons_completed_str);
 
   // Now we can create the producer processes.  Note that you MUST end your call to
   // process_create with a NULL argument so that the operating system
   // knows how many arguments you are sending.
-  for(i=0; i<numprocs; i++) {
-    process_create(PRODUCER_TO_RUN, h_mem_str, s_prods_completed_str, NULL);
-    Printf("Process %d created\n", i*2);
-    process_create(CONSUMER_TO_RUN, h_mem_str, s_cons_completed_str, NULL);
-    Printf("Process %d created\n", i*2+1);
-  }
+  // for(i=0; i<numprocs; i++) {
+  //   process_create(PRODUCER_TO_RUN, h_mem_str, s_prods_completed_str, NULL);
+  //   Printf("Process %d created\n", i*2);
+  //   process_create(CONSUMER_TO_RUN, h_mem_str, s_cons_completed_str, NULL);
+  //   Printf("Process %d created\n", i*2+1);
+  // }
+
+  Printf("N3 process created\n");
+  process_create(N3_INJ_TO_RUN, h_mem_str, n3_mol_str, NULL);
 
   // And finally, wait until all spawned processes have finished.
-  if (sem_wait(s_prods_completed) != SYNC_SUCCESS) {
-    Printf("Bad semaphore s_procs_completed.\n");
+  if (sem_wait(cb->sem_n3_inj) != SYNC_SUCCESS) {
+    Printf("Bad semaphore sem_n3_inj.\n");
     Exit();
   }
-  if (sem_wait(s_cons_completed) != SYNC_SUCCESS) {
-    Printf("Bad semaphore s_cons_completed.\n");
-    Exit();
-  }
+  // if (sem_wait(s_cons_completed) != SYNC_SUCCESS) {
+  //   Printf("Bad semaphore s_cons_completed.\n");
+  //   Exit();
+  // }
   Printf("All other processes completed, exiting main process.\n");
 }

@@ -10,16 +10,16 @@ void cb_init(CircularBuffer *cb) {
         Printf("Failed to create lock for circular buffer\n");
         Exit();
     }
-    cb->s_empty_slots = sem_create(BUFFER_CAPACITY - 1);
-    if (cb->s_empty_slots == SYNC_FAIL) {
+    cb->sem_n3_inj = sem_create(0);
+    if (cb->sem_n3_inj == SYNC_FAIL) {
         Printf("Failed to create empty slots semaphore for circular buffer\n");
         Exit();
     }
-    cb->s_full_slots = sem_create(0);
-    if (cb->s_full_slots == SYNC_FAIL) {
-        Printf("Failed to create full slots semaphore for circular buffer\n");
-        Exit();
-    }
+    // cb->s_full_slots = sem_create(0);
+    // if (cb->s_full_slots == SYNC_FAIL) {
+    //     Printf("Failed to create full slots semaphore for circular buffer\n");
+    //     Exit();
+    //}
     cb->head = 0;
     cb->tail = 0;
     cb->count = 0;

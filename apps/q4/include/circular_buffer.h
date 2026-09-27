@@ -5,8 +5,7 @@
 
 typedef struct {
     lock_t lock;
-    sem_t s_empty_slots;
-    sem_t s_full_slots;
+    sem_t sem_n3_inj;
     char buffer[BUFFER_CAPACITY];
     int head;
     int tail;
