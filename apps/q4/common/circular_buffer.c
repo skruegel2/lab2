@@ -12,14 +12,14 @@ void cb_init(CircularBuffer *cb) {
     }
     cb->sem_n3_inj = sem_create(0);
     if (cb->sem_n3_inj == SYNC_FAIL) {
-        Printf("Failed to create empty slots semaphore for circular buffer\n");
+        Printf("Failed to sem_n3_inj sem for circular buffer\n");
         Exit();
     }
-    // cb->s_full_slots = sem_create(0);
-    // if (cb->s_full_slots == SYNC_FAIL) {
-    //     Printf("Failed to create full slots semaphore for circular buffer\n");
-    //     Exit();
-    //}
+    cb->sem_h2o_inj = sem_create(0);
+    if (cb->sem_h2o_inj == SYNC_FAIL) {
+        Printf("Failed to create sem_h2o_inj sem for circular buffer\n");
+        Exit();
+    }
     cb->head = 0;
     cb->tail = 0;
     cb->count = 0;

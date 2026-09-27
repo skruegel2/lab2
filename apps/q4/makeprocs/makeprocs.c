@@ -5,26 +5,34 @@
 #include "circular_buffer.h"
 
 #include "n3_injection.h"
+#include "h2o_injection.h"
 
 void main (int argc, char *argv[])
 {
   int n3_mol = 0;                 // Used to store number of initial n3 molecules
+  int h2o_mol = 0;                // Used to store initial number of h2o molecules
   CircularBuffer *cb;             // Used to get address of shared memory page
   uint32 h_mem;                   // Used to hold handle to shared memory page
   sem_t sem_n3_inj;               // Semaphore used to wait until n3 injection complete
   char h_mem_str[10];             // Used as command-line argument to pass mem_handle to new processes
   char n3_mol_str[10];            // Used as command-line argument to pass page_mapped handle to new processes
+  char h2o_mol_str[10];           // Used as command-line argument to pass page_mapped handle to new processes
 
-  if (argc != 2) {
+  if (argc != 3) {
     Printf("Usage: "); Printf(argv[0]); Printf(" <number of processes to create>\n");
     Exit();
   }
+
   // Now print a message to show that everything worked
   Printf("makeprocs My PID is %d\n", Getpid());
 
   // Convert string from ascii command line argument to integer number
   n3_mol = dstrtol(argv[1], NULL, 10); // the "10" means base 10
   Printf("Creating %d N3 molecules\n", n3_mol);
+  
+  // Convert string from ascii command line argument to integer number
+  h2o_mol = dstrtol(argv[2], NULL, 10); // the "10" means base 10
+  Printf("Creating %d H2O molecules\n", h2o_mol);
 
   // Allocate space for a shared memory page, which is exactly 64KB
   // Note that it doesn't matter how much memory we actually need: we 
@@ -73,6 +81,7 @@ void main (int argc, char *argv[])
   // on the command line, so we must first convert them from ints to strings.
   ditoa(h_mem, h_mem_str);
   ditoa(n3_mol, n3_mol_str);
+  ditoa(h2o_mol, h2o_mol_str);
 //  ditoa(s_cons_completed, s_cons_completed_str);
 
   // Now we can create the producer processes.  Note that you MUST end your call to
@@ -88,14 +97,18 @@ void main (int argc, char *argv[])
   Printf("N3 process created\n");
   process_create(N3_INJ_TO_RUN, h_mem_str, n3_mol_str, NULL);
 
-  // And finally, wait until all spawned processes have finished.
+  Printf("H2O process created\n");
+  process_create(H2O_INJ_TO_RUN, h_mem_str, h2o_mol_str, NULL);
+
+  // Wait until n3 process has stopped
   if (sem_wait(cb->sem_n3_inj) != SYNC_SUCCESS) {
     Printf("Bad semaphore sem_n3_inj.\n");
     Exit();
   }
-  // if (sem_wait(s_cons_completed) != SYNC_SUCCESS) {
-  //   Printf("Bad semaphore s_cons_completed.\n");
-  //   Exit();
-  // }
+  // Wait until h2o process has stopped
+  if (sem_wait(cb->sem_h2o_inj) != SYNC_SUCCESS) {
+    Printf("Bad semaphore sem_n3_inj.\n");
+    Exit();
+  }
   Printf("All other processes completed, exiting main process.\n");
 }

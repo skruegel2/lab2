@@ -6,6 +6,7 @@
 typedef struct {
     lock_t lock;
     sem_t sem_n3_inj;
+    sem_t sem_h2o_inj;
     char buffer[BUFFER_CAPACITY];
     int head;
     int tail;
