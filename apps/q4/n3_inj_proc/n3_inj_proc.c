@@ -22,11 +22,11 @@ void main (int argc, char *argv[])
   Printf("Number of N3  %d\n", n3_mol);
 
   // Signal the semaphore to tell the original process that we're done
-  Printf("n3 inj proc: PID %d is complete.\n", Getpid());
+ // Printf("n3 inj proc: PID %d is complete.\n", Getpid());
   for(idx = 0; idx < n3_mol; idx++)
   {
+    Printf("An N3 molecule is created\n");
     sem_signal(n3_inj_proc);  
-    Printf("Signalled n3_inj_proc\n");
   }
 
 }
