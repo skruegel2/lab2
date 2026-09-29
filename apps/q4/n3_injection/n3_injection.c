@@ -6,7 +6,8 @@
 
 void main (int argc, char *argv[])
 {
-  uint32 h_mem;            // Handle to the shared memory page
+  uint32 h_mem;             // Handle to the shared memory page
+  int n3_mol;               // Number of n3 molecules
   // sem_t sem_n3_inj;        // Semaphore to signal the original process that we're done
   CircularBuffer *cb;      // Pointer to the shared memory page
   if (argc != 3) { 
@@ -18,7 +19,8 @@ void main (int argc, char *argv[])
 
   // Convert the command-line strings into integers for use as handles
   h_mem = dstrtol(argv[1], NULL, 10); // The "10" means base 10
-  // sem_n3_inj = dstrtol(argv[2], NULL, 10);
+  n3_mol = dstrtol(argv[2], NULL, 10);
+  Printf("N3 molecules: %d\n", n3_mol);
 
   // Map shared memory page into this process's memory space
   if ((cb = (CircularBuffer *)shmat(h_mem)) == NULL) {

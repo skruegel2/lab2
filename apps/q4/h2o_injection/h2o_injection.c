@@ -6,8 +6,8 @@
 
 void main (int argc, char *argv[])
 {
-  uint32 h_mem;            // Handle to the shared memory page
-  // sem_t sem_n3_inj;        // Semaphore to signal the original process that we're done
+  uint32 h_mem;             // Handle to the shared memory page
+  int h2o_mol;              // Number of h2o molecules
   CircularBuffer *cb;      // Pointer to the shared memory page
   if (argc != 3) { 
     Printf("H2O inj: Invalid number of arguments\n");
@@ -18,7 +18,8 @@ void main (int argc, char *argv[])
 
   // Convert the command-line strings into integers for use as handles
   h_mem = dstrtol(argv[1], NULL, 10); // The "10" means base 10
-  // sem_n3_inj = dstrtol(argv[2], NULL, 10);
+  h2o_mol = dstrtol(argv[2], NULL, 10);
+  Printf("H2O molecules: %d\n", h2o_mol);
 
   // Map shared memory page into this process's memory space
   if ((cb = (CircularBuffer *)shmat(h_mem)) == NULL) {
