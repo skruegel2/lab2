@@ -6,17 +6,10 @@
 # this way because the build procedure for all apps is basically the same.
 
 
-SRCS=h2o_injection.c
-EXEC=h2o_injection.dlx.obj
+SRCS=spawn_me.c
+EXEC=spawn_me.dlx.obj
 
 include ../Makerules
 
 include $(APPROOT)/Makerules
-
-WORKOBJS += work/circular_buffer.o
-
-$(OUTDLX): work/circular_buffer.o
-
-work/circular_buffer.o: ../common/circular_buffer.c ../include/circular_buffer.h ../../../include/lab2-api.h
-	$(CC) $(CFLAGS) $(INCDIR) -c -o $@ $<
 
