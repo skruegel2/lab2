@@ -26,8 +26,7 @@ void main (int argc, char *argv[])
 
   Printf("Number of H2O  %d\n", h2o_mol);
 
-  // Signal the semaphore to tell the original process that we're done
-  //Printf("h2o inj proc: PID %d is complete.\n", Getpid());
+  
   for(idx = 0; idx < h2o_mol; idx++)
   {
     Printf("An H2O molecule is created\n");
