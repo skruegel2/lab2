@@ -25,7 +25,7 @@ void main (int argc, char *argv[])
   //Printf("h2o inj proc: PID %d is complete.\n", Getpid());
   for(idx = 0; idx < h2o_mol; idx++)
   {
-    Printf("An H2O molecule is created\n");
+    Printf("Signalled h2o_inj_proc\n");
     sem_signal(h2o_inj_proc);  
   }
 
