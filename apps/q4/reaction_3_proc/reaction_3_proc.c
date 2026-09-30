@@ -18,7 +18,7 @@ void main (int argc, char *argv[])
     Exit();
   } 
   // Now print a message to show that everything worked
-  Printf("reaction 3 proc: My PID is %d\n", Getpid());
+  //Printf("reaction 3 proc: My PID is %d\n", Getpid());
 
   // Convert the command-line strings into integers for use as handles
   reaction_3_proc = dstrtol(argv[1], NULL, 10);

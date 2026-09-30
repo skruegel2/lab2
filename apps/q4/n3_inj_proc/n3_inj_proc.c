@@ -15,13 +15,13 @@ void main (int argc, char *argv[])
     Exit();
   } 
   // Now print a message to show that everything worked
-  Printf("n3 inj proc: My PID is %d\n", Getpid());
+  //Printf("n3 inj proc: My PID is %d\n", Getpid());
 
   // Convert the command-line strings into integers for use as handles
   n3_inj_proc = dstrtol(argv[1], NULL, 10);
   sem_n3 = dstrtol(argv[2], NULL, 10);
   n3_mol = dstrtol(argv[3], NULL, 10);
-  Printf("Number of N3  %d\n", n3_mol);
+  // Printf("Number of N3  %d\n", n3_mol);
 
   // Signal the semaphore to tell the original process that we're done
  // Printf("n3 inj proc: PID %d is complete.\n", Getpid());

@@ -130,31 +130,31 @@ void main (int argc, char *argv[])
     Printf("Bad n3_inj_proc\n");
     Exit();
   }
-  Printf("n3_inj_proc ended\n");
+  //Printf("n3_inj_proc ended\n");
    
   if (sem_wait(h2o_inj_proc) != SYNC_SUCCESS) {
     Printf("Bad h2o_inj_proc\n");
     Exit();
   }  
-  Printf("h2o_inj_proc ended\n");
+  //Printf("h2o_inj_proc ended\n");
 
   if (sem_wait(reaction_1_proc) != SYNC_SUCCESS) {
     Printf("Bad reaction_1_proc\n");
     Exit();
   }  
-  Printf("reaction_1_proc ended\n");
+  //Printf("reaction_1_proc ended\n");
 
   if (sem_wait(reaction_2_proc) != SYNC_SUCCESS) {
     Printf("Bad reaction_2_proc\n");
     Exit();
   }  
-  Printf("reaction_2_proc ended\n");
+  //Printf("reaction_2_proc ended\n");
 
   if (sem_wait(reaction_3_proc) != SYNC_SUCCESS) {
     Printf("Bad reaction_3_proc\n");
     Exit();
   }  
-  Printf("reaction_3_proc ended\n");
+  //Printf("reaction_3_proc ended\n");
 
   Printf("All other processes completed, exiting main process.\n");
 }

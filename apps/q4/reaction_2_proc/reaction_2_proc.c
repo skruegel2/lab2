@@ -16,17 +16,13 @@ void main (int argc, char *argv[])
     Exit();
   } 
   // Now print a message to show that everything worked
-  Printf("reaction 2 proc: My PID is %d\n", Getpid());
+  //Printf("reaction 2 proc: My PID is %d\n", Getpid());
 
   // Convert the command-line strings into integers for use as handles
   reaction_2_proc = dstrtol(argv[1], NULL, 10);
   sem_h2o = dstrtol(argv[2], NULL, 10);
   sem_o2 = dstrtol(argv[3], NULL, 10);
   h2o_mol = dstrtol(argv[4], NULL, 10);
-  Printf("reaction_2_proc %d\n", reaction_2_proc);
-  Printf("sem_h2o %d\n", sem_h2o);
-  Printf("h2o_mol %d\n", h2o_mol);
-  Printf("reaction 2 proc: h2o_mol =  %d\n", h2o_mol);
   
   for(idx = 0; idx < h2o_mol; idx++)
   {
