@@ -5,6 +5,7 @@
 #include "n3_inj_proc.h"
 #include "h2o_inj_proc.h"
 #include "reaction_1_proc.h"
+#include "reaction_2_proc.h"
 
 void main (int argc, char *argv[])
 {
@@ -20,6 +21,10 @@ void main (int argc, char *argv[])
   char reaction_1_proc_str[10];   // Passes sem handle to reaction 1 process
   sem_t sem_n3;                   // N3 mol sem
   char sem_n3_str[10];            // Passes N3 mol sem handle to reaction_1 process
+  sem_t reaction_2_proc;          // Completion sem for reaction 2 process
+  char reaction_2_proc_str[10];   // Passes sem handle to reaction 2 process
+  sem_t sem_h2o;                  // H2O mol sem
+  char sem_h2o_str[10];           // Passes H2O mol sem handle to reaction_2 process
 
   if (argc != 3) {
     Printf("Usage: "); Printf(argv[0]); Printf(" <number N3 molecules, number H2O molecules>\n");
@@ -37,24 +42,35 @@ void main (int argc, char *argv[])
   // each of the processes has signaled, the semaphore should be back to
   // zero and the final sem_wait below will return.
   if ((n3_inj_proc = sem_create(-(n3_mol-1))) == SYNC_FAIL) {
-    Printf("Bad sem_create in "); Printf(argv[0]); Printf("\n");
+    Printf("Bad sem_create n3_inj_proc");
     Exit();
   }
 
   if ((h2o_inj_proc = sem_create(-(h2o_mol-1))) == SYNC_FAIL) {
-    Printf("Bad sem_create in "); Printf(argv[0]); Printf("\n");
+    Printf("Bad sem_create h2o_inj_proc");
     Exit();
   }
 
   if ((reaction_1_proc = sem_create(0)) == SYNC_FAIL) {
-    Printf("Bad sem_create in "); Printf(argv[0]); Printf("\n");
+    Printf("Bad sem_create reaction_1_proc");
     Exit();
   }
 
-  if ((sem_n3 = sem_create(-(n3_mol-1))) == SYNC_FAIL) {
-    Printf("Bad sem_create in "); Printf(argv[0]); Printf("\n");
+  if ((sem_n3 = sem_create(0)) == SYNC_FAIL) {
+    Printf("Bad sem_create sem_n3");
     Exit();
   }
+
+  if ((reaction_2_proc = sem_create(0)) == SYNC_FAIL) {
+    Printf("Bad sem_create reaction_2_proc");
+    Exit();
+  }
+
+  if ((sem_h2o = sem_create(0)) == SYNC_FAIL) {
+    Printf("Bad sem_create sem_h2o");
+    Exit();
+  }
+
   // Setup the command-line arguments for the new process.  We're going to
   // pass the handles to the shared memory page and the semaphore as strings
   // on the command line, so we must first convert them from ints to strings.
@@ -64,13 +80,20 @@ void main (int argc, char *argv[])
   ditoa(h2o_mol, h2o_mol_str);
   ditoa(reaction_1_proc, reaction_1_proc_str);
   ditoa(sem_n3, sem_n3_str);
+  ditoa(reaction_2_proc, reaction_2_proc_str);
+  ditoa(sem_h2o, sem_h2o_str);
 
   // Now we can create the processes.  Note that you MUST end your call to
   // process_create with a NULL argument so that the operating system
   // knows how many arguments you are sending.
   process_create(N3_INJ_PROC, n3_inj_proc_str, sem_n3_str, n3_mol_str, NULL);
-  process_create(H2O_INJ_PROC, h2o_inj_proc_str, h2o_mol_str, NULL);
+  process_create(H2O_INJ_PROC, h2o_inj_proc_str, sem_h2o_str, h2o_mol_str, NULL);
   process_create(REACTION_1_PROC, reaction_1_proc_str, sem_n3_str, n3_mol_str, NULL);
+  Printf("reaction_2_proc %d\n", reaction_2_proc);
+  Printf("sem_h2o %d\n", sem_h2o);
+  Printf("h2o_mol %d\n", h2o_mol);
+
+  process_create(REACTION_2_PROC, reaction_2_proc_str, sem_h2o_str, h2o_mol_str, NULL);
 
   // And finally, wait until all spawned processes have finished.
   if (sem_wait(n3_inj_proc) != SYNC_SUCCESS) {
@@ -89,6 +112,11 @@ void main (int argc, char *argv[])
     Exit();
   }  
   Printf("reaction_1_proc ended\n");
+  if (sem_wait(reaction_2_proc) != SYNC_SUCCESS) {
+    Printf("Bad reaction_2_proc\n");
+    Exit();
+  }  
+  Printf("reaction_2_proc ended\n");
 
   Printf("All other processes completed, exiting main process.\n");
 }
