@@ -420,7 +420,7 @@ cond_t CondCreate(lock_t lock) {
   }
   else
   {
-    printf("Created condition var.\n");
+    //printf("Created condition var.\n");
   }
   conds[cond].lock = lock;
   return cond;  
