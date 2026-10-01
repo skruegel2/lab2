@@ -26,7 +26,7 @@ void main (int argc, char *argv[])
 
   // Convert string from ascii command line argument to integer number
   numprocs = dstrtol(argv[1], NULL, 10); // the "10" means base 10
-  Printf("Creating %d processes\n", numprocs);
+  //Printf("Creating %d processes\n", numprocs);
 
   // Allocate space for a shared memory page, which is exactly 64KB
   // Note that it doesn't matter how much memory we actually need: we 
@@ -79,9 +79,9 @@ void main (int argc, char *argv[])
   // knows how many arguments you are sending.
   for(i=0; i<numprocs; i++) {
     process_create(PRODUCER_TO_RUN, h_mem_str, s_prods_completed_str, NULL);
-    Printf("Process %d created\n", i*2);
+    //Printf("Process %d created\n", i*2);
     process_create(CONSUMER_TO_RUN, h_mem_str, s_cons_completed_str, NULL);
-    Printf("Process %d created\n", i*2+1);
+    //Printf("Process %d created\n", i*2+1);
   }
 
   // And finally, wait until all spawned processes have finished.
