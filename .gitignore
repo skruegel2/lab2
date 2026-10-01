@@ -10,3 +10,5 @@
 
 # Binaries
 bin/
+
+!~/ece695/lab2/lib/share_memory.o
