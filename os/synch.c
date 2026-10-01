@@ -476,7 +476,7 @@ int CondHandleWait(cond_t c) {
 
   // Release the lock before sleeping
   if (LockRelease(&l) != SYNC_SUCCESS) {
-      QueueRemove(current_pcb);
+      AQueueRemove(current_pcb);
       RestoreIntrs(intrval);
       return SYNC_FAIL;
   }
