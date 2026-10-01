@@ -1,0 +1,28 @@
+README Lab 2
+OS build
+1. Change to the lab2 directory
+2. Type mainframer.sh 'cd os && make'
+Question 1
+1. Change to the lab2 directory.
+2. Type mainframer.sh 'cd apps/q1 && make'
+3. Change to the lab2/bin directory.
+4. Execute code by typing dlxsim -x os.dlx.obj -a -u makeprocs.dlx.obj x, where x is the number of producers and consumers.
+Question 2
+1. Change to the lab2 directory.
+2. Type mainframer.sh 'cd apps/q2 && make'
+3. Change to the lab2/bin directory.
+4. Execute code by typing dlxsim -x os.dlx.obj -a -u makeprocs.dlx.obj x, where x is the number of producers and consumers.
+Question 3
+1. Change to the lab2 directory.
+2. Type mainframer.sh 'cd apps/q3 && make'
+3. Change to the lab2/bin directory.
+4. Execute code by typing dlxsim -x os.dlx.obj -a -u makeprocs.dlx.obj x, where x is the number of producers and consumers.
+Question 4
+1. Change to the lab2 directory.
+2. Type mainframer.sh 'cd apps/q4 && make'
+3. Change to the lab2/bin directory.
+4. Execute code by typing dlxsim -x os.dlx.obj -a -u makeprocs.dlx.obj x y
+    where:
+        x is the number of N3 molecules
+        y is the number of H2O molecules
+
