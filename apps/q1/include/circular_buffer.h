@@ -1,7 +1,7 @@
 #ifndef CIRCULAR_BUFFER_H
 #define CIRCULAR_BUFFER_H
 #include "lab2-api.h"
-#define BUFFER_CAPACITY 10
+#define BUFFER_CAPACITY 32
 
 typedef struct {
     lock_t lock;
